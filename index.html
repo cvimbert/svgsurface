@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Svg surface demo</title>
+    <script src="bower_components/requirejs/require.js"></script>
+    <script src="config.js"></script>
 </head>
 <body>
+
+<script>
+
+    require(["svgsurface"], function(SvgSurface) {
+        var surface = new SvgSurface({
+            width: 400,
+            height: 400,
+            container: "body"
+        })
+    });
+
+</script>
 
 </body>
 </html>

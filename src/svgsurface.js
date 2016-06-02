@@ -118,7 +118,7 @@
 
             groupId = config.prefix + config.groupPrefix + groupId;
 
-            var groupToRemove = document.getElementById(lineId);
+            var groupToRemove = document.getElementById(groupId);
             if (groupToRemove)
                 groupToRemove.parentNode.removeChild(groupToRemove);
         };

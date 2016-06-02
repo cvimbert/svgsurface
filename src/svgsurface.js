@@ -6,22 +6,30 @@
         (typeof global == 'object' && global.global === global && global);
 
     if (typeof define === 'function' && define.amd) {
-        define(["jquery"], function($) {
-            return factory($);
+        define(["jquery", "underscore"], function($, _) {
+            return factory($, _);
         });
     } else {
-        root.SvgSurface = factory(root.$);
+        root.SvgSurface = factory(root.$, root._);
     }
-})(function($) {
+})(function($, _) {
 
     return function(config) {
 
-        var currentScale = config.defaultScale ? config.defaultScale : 1;
-        var defaultGroup;
+        var defaultConfig = {
+            defaultScale: 1,
+            prefix: "svg-",
+            groupPrefix: "group-",
+            linePrefix: "line-"
+        };
+
+        config = _.extend(defaultConfig, config);
+
+        var currentScale = config.defaultScale;
 
 
         /**
-         * Création d'un conteneur svg
+         * Create a SVG container
          * @param obj
          * @returns {Element}
          * @constructor
@@ -36,7 +44,7 @@
 
 
         /**
-         * Créé un groupe Svg
+         * Create a SVG group
          * @param obj
          * @returns {Element}
          * @constructor
@@ -51,7 +59,7 @@
 
 
         /**
-         * Création d'une ligne dans un conteneur svg
+         * Create a line in the SVG container
          * @param obj
          * @returns {Element}
          * @constructor
@@ -66,18 +74,7 @@
 
 
         /**
-         * Suppression d'une ligne svg par son id
-         * @param lineId
-         */
-        function removeLine(lineId) {
-            var lineToRemove = document.getElementById(lineId);
-            if (lineToRemove)
-                linesSvg.removeChild(lineToRemove);
-        }
-
-
-        /**
-         * Change le facteur de scale de la surface svg
+         * Change the scale factor of the SVG surface
          * @param scale
          */
         this.setScale = function(scale) {
@@ -85,24 +82,128 @@
         };
 
 
-        this.createGroup = function(id, position, setDefault) {
+        /**
+         * Create a SVG group
+         * @param id
+         * @param position
+         * @param container
+         * @returns {SvgGroup}
+         */
+        this.createGroup = function(id, position, container) {
 
-            if (setDefault === undefined) setDefault = true;
+            if (!container) container = surface;
 
             if (!position) position = {
                 x: 0,
                 y: 0
             };
 
-            var group = new SvgGroup(id, position.x, position.y);
+            var group = new SvgGroup({
+                id: config.prefix + config.groupPrefix + id,
+                x: position.x / currentScale,
+                y: position.y / currentScale
+            });
 
-            if (setDefault) defaultGroup = group;
+            container.appendChild(group);
 
             return group;
         };
 
 
-        // Initialisation de la surface SVG
+        /**
+         * Delete a group by id
+         * @param groupId
+         */
+        this.deleteGroup = function(groupId) {
+
+            groupId = config.prefix + config.groupPrefix + groupId;
+
+            var groupToRemove = document.getElementById(lineId);
+            if (groupToRemove)
+                groupToRemove.parentNode.removeChild(groupToRemove);
+        };
+
+
+        /**
+         * Create a SVG line
+         * @param id
+         * @param from
+         * @param to
+         * @param style
+         * @param container
+         * @returns {Line}
+         */
+        this.createLine = function(id, from, to, style, container) {
+
+            if (!container) container = surface;
+
+            var defaultStyle = {
+                width: 1,
+                color: "#ff0000"
+            };
+
+            style = _.extend(defaultStyle, style);
+
+            var line = new Line({
+                id: config.prefix + config.linePrefix + id,
+                x1: from.x / currentScale,
+                y1: from.y / currentScale,
+                x2: to.x / currentScale,
+                y2: to.y / currentScale,
+                style: "stroke:" + style.color + "; stroke-width:" + style.width
+            });
+
+            container.appendChild(line);
+
+            return line;
+        };
+
+
+        /**
+         * Delete a line by id
+         * @param lineId
+         */
+        this.deleteLine = function(lineId) {
+
+            lineId = config.prefix + config.linePrefix + lineId;
+
+            var lineToRemove = document.getElementById(lineId);
+            if (lineToRemove)
+                lineToRemove.parentNode.removeChild(lineToRemove);
+        };
+
+
+        /**
+         * Update a line (temporary)
+         * @param line
+         * @param properties
+         * @returns {boolean}
+         */
+        this.updateLine = function(line, properties) {
+
+            if ((typeof line) === "string") {
+                line = document.getElementById(config.prefix + config.linePrefix + line);
+                if (!line) return false;
+            }
+
+            _.each(properties, function(value, key) {
+                line.setAttribute(key, value);
+            });
+
+            return true;
+        };
+
+
+        /**
+         * Delete a SVG element
+         * @param element
+         */
+        this.deleteElement = function(element) {
+            element.parentNode.removeChild(element);
+        };
+
+
+        // Initialize the SVG surface
         var surface = new SvgContainer({
             width: config.width + "px",
             height: config.height + "px"

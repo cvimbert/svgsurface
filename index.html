@@ -15,7 +15,14 @@
             width: 400,
             height: 400,
             container: "body"
-        })
+        });
+
+        //surface.setScale(0.5);
+
+        var group1 = surface.createGroup("g1", {x: 20, y: 20});
+        var line1 = surface.createLine("line1", {x: 10, y: 10}, {x: 50, y: 50}, {width: 2, color: "#ffff00"});
+        //surface.updateLine(line1, {y2: 300});
+        //surface.deleteElement(line1);
     });
 
 </script>

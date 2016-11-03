@@ -20,7 +20,9 @@
             defaultScale: 1,
             prefix: "svg-",
             groupPrefix: "group-",
-            linePrefix: "line-"
+            linePrefix: "line-",
+            lineWidth: 2,
+            lineColor: "#ff0000"
         };
 
         config = _.extend(defaultConfig, config);
@@ -138,8 +140,8 @@
             if (!container) container = surface;
 
             var defaultStyle = {
-                width: 1,
-                color: "#ff0000"
+                width: config.lineWidth,
+                color: config.lineColor
             };
 
             style = _.extend(defaultStyle, style);
@@ -156,6 +158,22 @@
             container.appendChild(line);
 
             return line;
+        };
+
+
+        /**
+         *
+         * @param id
+         * @param from
+         * @param to
+         * @param style
+         * @param container
+         * @returns {*}
+         */
+        this.createUniqueLine = function (id, from, to, style, container) {
+
+            this.deleteLine(id);
+            return this.createLine(id, from, to, style, container)
         };
 
 

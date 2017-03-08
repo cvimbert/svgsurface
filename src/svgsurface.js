@@ -9,6 +9,11 @@
         define(["jquery", "underscore"], function($, _) {
             return factory($, _);
         });
+    } else if (typeof exports === 'object') {
+        module.exports = factory(
+            require("jquery"),
+            require("underscore")
+        );
     } else {
         root.SvgSurface = factory(root.$, root._);
     }
